@@ -1,67 +1,180 @@
 {
-  "id": "blocknote",
-  "name": "BlockNote",
-  "description": "A plugin to use BlockNote library",
-  "private": true,
-  "publicProps": [],
-  "privateProps": [],
-  "schemas": [],
-  "blocks": [
-    {
-      "name": "Block",
-      "entrypoint": "./blocks/Block/index.tsx",
-      "acceptsChildren": false,
-      "category": "Data",
-      "props": [
-        {
-          "label": "Initial Value",
-          "name": "defaultValue",
-          "type": { "kind": "text", "isDynamic": true },
-          "default": "",
-          "placeholder": "...",
-          "help": "default value for the editor"
-        },
-        {
-          "label": "Placeholder",
-          "name": "placeholder",
-          "type": { "kind": "text" },
-          "default": "Enter some text...",
-          "placeholder": "Enter some text...",
-          "help": "The placeholder text to display"
-        },
-        {
-          "label": "Is Read Only",
-          "name": "readOnly",
-          "type": { "kind": "boolean", "isDynamic": true },
-          "default": false,
-          "placeholder": "",
-          "help": "Whether the input is read-only"
-        }
-      ],
-      "events": [
-        {
-          "label": "When changed",
-          "name": "onTextChange",
-          "help": "Select an action to run when input's value has changed",
-          "offerDebounce": true
-        }
-      ],
-      "defaultStyles": {
-        "": {}
-      },
-      "sources": [
-        {
-          "id": "value",
-          "name": "{{= it.component.name }}'s current value",
-          "provider": "StateProvider",
-          "description": "The current value of the input",
-          "template": "$get('{{= it.component.id}}', { value: {{= it.stringify(it.component.props.defaultValue) }} ?? '' }).value",
-          "instanceTemplate": "{{= it.component.name }}'s current value",
-          "outputType": { "kind": "text" }
-        }
-      ],
-      "actions": []
-    }
-  ],
-  "serverActions": []
+	"id": "mapsplugin",
+	"name": "MapsPlugin",
+	"description": "A plugin to use Google Maps",
+	"private": true,
+	"publicProps": [],
+	"privateProps": [],
+	"schemas": [
+		{
+			"$schema": "http://json-schema.org/draft-04/schema#",
+			"id": "mapmarker",
+			"name": "Location",
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "Unique identifier for the location"
+				},
+				"lat": {
+					"type": "number",
+					"description": "Latitude coordinate"
+				},
+				"lng": {
+					"type": "number",
+					"description": "Longitude coordinate"
+				}
+			},
+			"required": ["id", "lat", "lng"]
+		},
+		{
+			"$schema": "http://json-schema.org/draft-04/schema#",
+			"id": "mapbox",
+			"name": "Map Boundary Box",
+			"type": "object",
+			"properties": {
+				"latMin": {
+					"type": "number",
+					"description": "Minimum latitude coordinate"
+				},
+				"latMax": {
+					"type": "number",
+					"description": "Maximum latitude coordinate"
+				},
+				"lngMin": {
+					"type": "number",
+					"description": "Minimum longitude coordinate"
+				},
+				"lngMax": {
+					"type": "number",
+					"description": "Maximum longitude coordinate"
+				}
+			},
+			"required": ["latMin", "latMax", "lngMin", "lngMax"]
+		}
+	],
+	"blocks": [
+		{
+			"name": "HeatMap",
+			"entrypoint": "./blocks/HeatMap/index.tsx",
+			"acceptsChildren": false,
+			"category": "Data",
+			"props": [
+				{
+					"label": "apiKey",
+					"name": "apiKey",
+					"type": { "kind": "text", "isDynamic": true },
+					"default": "",
+					"placeholder": "...",
+					"help": "default value for the editor"
+				},
+				{
+					"label": "Markers",
+					"name": "markers",
+					"type": {
+						"kind": "mapsplugin|mapmarker",
+						"isDynamic": true,
+						"isList": true
+					},
+					"default": "",
+					"placeholder": "...",
+					"help": "markers"
+				}
+			],
+			"events": [
+				{
+					"label": "OnMapMap",
+					"name": "onMapMove",
+					"help": "When the Map is moved",
+					"offerDebounce": true
+				}
+			],
+			"defaultStyles": {
+				"": {}
+			},
+			"sources": [
+				{
+					"id": "box",
+					"name": "{{= it.component.name }}'s current box",
+					"provider": "StateProvider",
+					"description": "The lat/lng of the map",
+					"template": "$get('{{= it.component.id}}', { box: {{= it.stringify(it.component.props.defaultValue) }} ?? '' }).box",
+					"instanceTemplate": "{{= it.component.name }}'s current box",
+					"outputType": { "kind": "mapsplugin|mapbox" }
+				}
+			],
+			"actions": []
+		},
+		{
+			"name": "MapComponent",
+			"entrypoint": "./blocks/Map/index.tsx",
+			"acceptsChildren": false,
+			"category": "Data",
+			"props": [
+				{
+					"label": "apiKey",
+					"name": "apiKey",
+					"type": { "kind": "text", "isDynamic": true },
+					"default": "",
+					"placeholder": "...",
+					"help": "default value for the editor"
+				},
+				{
+					"label": "Markers",
+					"name": "markers",
+					"type": {
+						"kind": "mapsplugin|mapmarker",
+						"isDynamic": true,
+						"isList": true
+					},
+					"default": "",
+					"placeholder": "...",
+					"help": "markers"
+				}
+			],
+			"events": [
+				{
+					"label": "OnMapMap",
+					"name": "onMapMove",
+					"help": "When the Map is moved",
+					"offerDebounce": true
+				},
+				{
+					"label": "onMarkerClick",
+					"name": "onMarkerClick",
+					"help": "When the marker is clicked",
+					"offerDebounce": false,
+					"additionalSources": [
+						{
+							"id": "QcMxXkgXQdKQHEG7Bji8v",
+							"name": "marker",
+							"instanceTemplate": "marker",
+							"description": "marker",
+							"template": "$$payload",
+							"outputType": {
+								"kind": "mapsplugin|mapmarker",
+								"isList": false
+							}
+						}
+					]
+				}
+			],
+			"defaultStyles": {
+				"": {}
+			},
+			"sources": [
+				{
+					"id": "box",
+					"name": "{{= it.component.name }}'s current box",
+					"provider": "StateProvider",
+					"description": "The lat/lng of the map",
+					"template": "$get('{{= it.component.id}}', { box: {{= it.stringify(it.component.props.defaultValue) }} ?? '' }).box",
+					"instanceTemplate": "{{= it.component.name }}'s current box",
+					"outputType": { "kind": "mapsplugin|mapbox" }
+				}
+			],
+			"actions": []
+		}
+	],
+	"serverActions": []
 }
